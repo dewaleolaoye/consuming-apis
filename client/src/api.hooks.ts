@@ -36,6 +36,7 @@ export function useTodoQuery(id: number) {
 export function useCreateTodoMutation() {
   return useMutation<Todo, Error, CreateTodoInput, MutationContext>({
     mutationFn: createTodo,
+    mutationKey: todoKeys.createTodo,
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
 

@@ -1,15 +1,10 @@
 import { useMemo, useState } from 'react';
-import {
-  useCreateTodoMutation,
-  useDeleteTodoMutation,
-  usePatchTodoMutation,
-  useTodosQuery,
-  useUpdateTodoMutation,
-} from './api.hooks';
+import { useDeleteTodoMutation, usePatchTodoMutation, useTodosQuery, useUpdateTodoMutation } from './api.hooks';
 import { EmptyState } from './components/EmptyState';
 import { TodoForm } from './components/TodoForm';
 import { TodoItem } from './components/TodoItem';
 import { TodoStats } from './components/TodoStats';
+import { useIsMutating } from '@tanstack/react-query';
 
 type Filter = 'all' | 'active' | 'completed';
 
@@ -19,8 +14,11 @@ function App() {
   const [filter, setFilter] = useState<Filter>('all');
 
   const { data, isLoading, isError, error } = useTodosQuery();
-  const { isPending: isCreating } = useCreateTodoMutation();
-  console.log({ isCreating });
+  const isCreating =
+    useIsMutating({
+      mutationKey: ['create'],
+    }) > 0;
+
   const { mutate: patchTodo, isPending: isPatching } = usePatchTodoMutation();
   const { mutateAsync: updateTodo, isPending: isUpdating } = useUpdateTodoMutation();
   const { mutate: deleteTodo, isPending: isDeleting } = useDeleteTodoMutation();
@@ -35,7 +33,7 @@ function App() {
   const completedCount = todos.filter((todo) => todo.completed).length;
   const activeCount = todos.length - completedCount;
   const completion = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
-  const isSaving = isPatching || isUpdating || isDeleting;
+  const isSaving = isCreating || isPatching || isUpdating || isDeleting;
 
   return (
     <main className='min-h-screen bg-[#f6f7f4] text-slate-950'>
