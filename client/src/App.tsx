@@ -18,13 +18,14 @@ const filters: Filter[] = ['all', 'active', 'completed'];
 function App() {
   const [filter, setFilter] = useState<Filter>('all');
 
-  const todosQuery = useTodosQuery();
-  const createTodo = useCreateTodoMutation();
-  const patchTodo = usePatchTodoMutation();
-  const updateTodo = useUpdateTodoMutation();
-  const deleteTodo = useDeleteTodoMutation();
+  const { data, isLoading, isError, error } = useTodosQuery();
+  const { isPending: isCreating } = useCreateTodoMutation();
+  console.log({ isCreating });
+  const { mutate: patchTodo, isPending: isPatching } = usePatchTodoMutation();
+  const { mutateAsync: updateTodo, isPending: isUpdating } = useUpdateTodoMutation();
+  const { mutate: deleteTodo, isPending: isDeleting } = useDeleteTodoMutation();
 
-  const todos = useMemo(() => todosQuery.data ?? [], [todosQuery.data]);
+  const todos = useMemo(() => data ?? [], [data]);
   const visibleTodos = useMemo(() => {
     if (filter === 'active') return todos.filter((todo) => !todo.completed);
     if (filter === 'completed') return todos.filter((todo) => todo.completed);
@@ -34,7 +35,7 @@ function App() {
   const completedCount = todos.filter((todo) => todo.completed).length;
   const activeCount = todos.length - completedCount;
   const completion = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
-  const isSaving = createTodo.isPending || patchTodo.isPending || updateTodo.isPending || deleteTodo.isPending;
+  const isSaving = isPatching || isUpdating || isDeleting;
 
   return (
     <main className='min-h-screen bg-[#f6f7f4] text-slate-950'>
@@ -54,10 +55,7 @@ function App() {
         </header>
 
         <div className='grid flex-1 gap-6 py-6 lg:grid-cols-[380px_1fr]'>
-          <TodoForm
-            isCreating={createTodo.isPending}
-            onCreate={createTodo.mutateAsync}
-          />
+          <TodoForm />
 
           <section className='rounded-lg border border-slate-200 bg-white shadow-sm'>
             <div className='flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between'>
@@ -85,15 +83,15 @@ function App() {
             </div>
 
             <div className='divide-y divide-slate-100'>
-              {todosQuery.isLoading ? (
+              {isLoading ? (
                 <EmptyState
                   title='Loading todos'
                   detail='Fetching the latest list from the API.'
                 />
-              ) : todosQuery.isError ? (
+              ) : isError ? (
                 <EmptyState
                   title='Could not load todos'
-                  detail={todosQuery.error.message}
+                  detail={error.message}
                   tone='error'
                 />
               ) : visibleTodos.length === 0 ? (
@@ -106,15 +104,15 @@ function App() {
                   <TodoItem
                     key={todo.id}
                     todo={todo}
-                    isUpdating={updateTodo.isPending}
-                    onDelete={deleteTodo.mutate}
+                    isUpdating={isUpdating}
+                    onDelete={deleteTodo}
                     onToggle={(selectedTodo) =>
-                      patchTodo.mutate({
+                      patchTodo({
                         id: selectedTodo.id,
                         input: { completed: !selectedTodo.completed },
                       })
                     }
-                    onUpdate={(id, input) => updateTodo.mutateAsync({ id, input })}
+                    onUpdate={(id, input) => updateTodo({ id, input })}
                   />
                 ))
               )}

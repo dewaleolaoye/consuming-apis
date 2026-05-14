@@ -1,5 +1,5 @@
 export const todoKeys = {
-  all: ['todos'] as const,
-  lists: () => [...todoKeys.all, 'list'] as const,
-  detail: (id: number) => [...todoKeys.all, 'detail', id] as const,
-}
+  all: ['todos'],
+  lists: () => [...todoKeys.all, 'list'],
+  detail: (id: number) => [...todoKeys.all, 'detail', id],
+};

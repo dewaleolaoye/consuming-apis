@@ -1,12 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import type { CreateTodoInput } from '../api';
+import { useCreateTodoMutation } from '../api.hooks';
 
-type TodoFormProps = {
-  isCreating: boolean;
-  onCreate: (input: CreateTodoInput) => Promise<unknown>;
-};
-
-export function TodoForm({ isCreating, onCreate }: TodoFormProps) {
+export function TodoForm() {
+  const { mutateAsync: createTodo, isPending: isCreating } = useCreateTodoMutation();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -16,7 +12,7 @@ export function TodoForm({ isCreating, onCreate }: TodoFormProps) {
 
     if (!trimmedTitle) return;
 
-    await onCreate({
+    await createTodo({
       title: trimmedTitle,
       description: description.trim() || null,
     });
