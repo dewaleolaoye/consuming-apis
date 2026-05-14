@@ -37,16 +37,19 @@ function App() {
   const isSaving = isCreating || isPatching || isUpdating || isDeleting;
 
   // const [fetchedData, setFetchedData] = useState<Todo[]>();
+  // const [loading, setLoading] = useState(false);
   // useEffect(() => {
   //   const fetchFn = async () => {
+  //     setLoading(true);
   //     const response = await getTodos();
   //     setFetchedData(response);
+  //     setLoading(false);
   //   };
 
   //   fetchFn();
   // }, []);
 
-  // console.log(fetchedData, 'fetchedData');
+  // console.log(fetchedData, loading, 'fetchedData');
 
   return (
     <main className='min-h-screen bg-[#f6f7f4] text-slate-950'>
