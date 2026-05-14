@@ -5,6 +5,7 @@ import { TodoForm } from './components/TodoForm';
 import { TodoItem } from './components/TodoItem';
 import { TodoStats } from './components/TodoStats';
 import { useIsMutating } from '@tanstack/react-query';
+// import { getTodos, type Todo } from './api';
 
 type Filter = 'all' | 'active' | 'completed';
 
@@ -34,6 +35,18 @@ function App() {
   const activeCount = todos.length - completedCount;
   const completion = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
   const isSaving = isCreating || isPatching || isUpdating || isDeleting;
+
+  // const [fetchedData, setFetchedData] = useState<Todo[]>();
+  // useEffect(() => {
+  //   const fetchFn = async () => {
+  //     const response = await getTodos();
+  //     setFetchedData(response);
+  //   };
+
+  //   fetchFn();
+  // }, []);
+
+  // console.log(fetchedData, 'fetchedData');
 
   return (
     <main className='min-h-screen bg-[#f6f7f4] text-slate-950'>
