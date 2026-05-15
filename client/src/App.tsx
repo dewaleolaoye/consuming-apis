@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useDeleteTodoMutation, usePatchTodoMutation, useTodosQuery, useUpdateTodoMutation } from './api.hooks';
+import { useDeleteTodoMutation, useTodosQuery, useUpdateTodoMutation } from './api.hooks';
 import { EmptyState } from './components/EmptyState';
 import { TodoForm } from './components/TodoForm';
 import { TodoItem } from './components/TodoItem';
@@ -14,13 +14,12 @@ const filters: Filter[] = ['all', 'active', 'completed'];
 function App() {
   const [filter, setFilter] = useState<Filter>('all');
 
-  const { data, isLoading, isError, error } = useTodosQuery();
+  const { data, isLoading, isError, error, isSuccess } = useTodosQuery();
   const isCreating =
     useIsMutating({
       mutationKey: ['create'],
     }) > 0;
 
-  const { mutate: patchTodo, isPending: isPatching } = usePatchTodoMutation();
   const { mutateAsync: updateTodo, isPending: isUpdating } = useUpdateTodoMutation();
   const { mutate: deleteTodo, isPending: isDeleting } = useDeleteTodoMutation();
 
@@ -34,7 +33,7 @@ function App() {
   const completedCount = todos.filter((todo) => todo.completed).length;
   const activeCount = todos.length - completedCount;
   const completion = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
-  const isSaving = isCreating || isPatching || isUpdating || isDeleting;
+  const isSaving = isCreating || isUpdating || isDeleting;
 
   // const [fetchedData, setFetchedData] = useState<Todo[]>();
   // const [loading, setLoading] = useState(false);
@@ -97,23 +96,29 @@ function App() {
             </div>
 
             <div className='divide-y divide-slate-100'>
-              {isLoading ? (
+              {isLoading && (
                 <EmptyState
                   title='Loading todos'
                   detail='Fetching the latest list from the API.'
                 />
-              ) : isError ? (
+              )}
+
+              {isError && (
                 <EmptyState
                   title='Could not load todos'
                   detail={error.message}
                   tone='error'
                 />
-              ) : visibleTodos.length === 0 ? (
+              )}
+
+              {isSuccess && visibleTodos.length === 0 && (
                 <EmptyState
                   title='No todos here'
                   detail='Create a task or switch filters to see more items.'
                 />
-              ) : (
+              )}
+
+              {isSuccess &&
                 visibleTodos.map((todo) => (
                   <TodoItem
                     key={todo.id}
@@ -121,15 +126,14 @@ function App() {
                     isUpdating={isUpdating}
                     onDelete={deleteTodo}
                     onToggle={(selectedTodo) =>
-                      patchTodo({
+                      updateTodo({
                         id: selectedTodo.id,
                         input: { completed: !selectedTodo.completed },
                       })
                     }
                     onUpdate={(id, input) => updateTodo({ id, input })}
                   />
-                ))
-              )}
+                ))}
             </div>
           </section>
         </div>

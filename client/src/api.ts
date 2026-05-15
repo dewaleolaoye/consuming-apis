@@ -1,4 +1,4 @@
-import type { CreateTodoInput, PatchTodoInput, Todo, UpdateTodoInput } from "./api.interface";
+import type { CreateTodoInput, Todo, UpdateTodoInput } from './api.interface';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:7071';
 
@@ -39,13 +39,6 @@ export function createTodo(input: CreateTodoInput) {
 }
 
 export function updateTodo(id: number, input: UpdateTodoInput) {
-  return request<Todo>(`/todos/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(input),
-  });
-}
-
-export function patchTodo(id: number, input: PatchTodoInput) {
   return request<Todo>(`/todos/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(input),

@@ -13,13 +13,7 @@ export type CreateTodoInput = {
   completed?: boolean;
 };
 
-export type UpdateTodoInput = {
-  title: string;
-  description?: string | null;
-  completed: boolean;
-};
-
-export type PatchTodoInput = Partial<{
+export type UpdateTodoInput = Partial<{
   title: string;
   description: string | null;
   completed: boolean;

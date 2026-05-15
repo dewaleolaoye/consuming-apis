@@ -4,13 +4,9 @@ import {
   deleteTodo,
   getTodo,
   getTodos,
-  patchTodo,
   updateTodo,
-  type CreateTodoInput,
-  type PatchTodoInput,
-  type Todo,
-  type UpdateTodoInput,
 } from './api';
+import type { CreateTodoInput, Todo, UpdateTodoInput } from './api.interface';
 import { queryClient } from './queryClient';
 import { todoKeys } from './queryKeys';
 
@@ -70,33 +66,6 @@ export function useCreateTodoMutation() {
 export function useUpdateTodoMutation() {
   return useMutation<Todo, Error, { id: number; input: UpdateTodoInput; }, MutationContext>({
     mutationFn: ({ id, input }) => updateTodo(id, input),
-    onMutate: async ({ id, input }) => {
-      await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
-
-      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.lists());
-      queryClient.setQueryData<Todo[]>(todoKeys.lists(), (current = []) =>
-        current.map((todo) =>
-          todo.id === id ? { ...todo, ...input, updated_at: new Date().toISOString() } : todo,
-        ),
-      );
-
-      return { previousTodos };
-    },
-    onError: (_error, _variables, context) => {
-      queryClient.setQueryData(todoKeys.lists(), context?.previousTodos);
-    },
-    onSuccess: (todo) => {
-      queryClient.setQueryData(todoKeys.detail(todo.id), todo);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: todoKeys.lists() });
-    },
-  });
-}
-
-export function usePatchTodoMutation() {
-  return useMutation<Todo, Error, { id: number; input: PatchTodoInput; }, MutationContext>({
-    mutationFn: ({ id, input }) => patchTodo(id, input),
     onMutate: async ({ id, input }) => {
       await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
 
