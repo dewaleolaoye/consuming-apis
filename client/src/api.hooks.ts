@@ -16,7 +16,7 @@ type MutationContext = {
 
 export function useTodosQuery() {
   return useQuery({
-    queryKey: todoKeys.lists(),
+    queryKey: todoKeys.list,
     queryFn: getTodos,
   });
 }
@@ -32,11 +32,11 @@ export function useTodoQuery(id: number) {
 export function useCreateTodoMutation() {
   return useMutation<Todo, Error, CreateTodoInput, MutationContext>({
     mutationFn: createTodo,
-    mutationKey: todoKeys.createTodo,
+    mutationKey: todoKeys.create,
     onMutate: async (input) => {
-      await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: todoKeys.list });
 
-      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.lists());
+      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.list);
       const now = new Date().toISOString();
       const optimisticTodo: Todo = {
         id: -Date.now(),
@@ -47,7 +47,7 @@ export function useCreateTodoMutation() {
         updated_at: now,
       };
 
-      queryClient.setQueryData<Todo[]>(todoKeys.lists(), (current = []) => [
+      queryClient.setQueryData<Todo[]>(todoKeys.list, (current = []) => [
         optimisticTodo,
         ...current,
       ]);
@@ -55,10 +55,10 @@ export function useCreateTodoMutation() {
       return { previousTodos };
     },
     onError: (_error, _input, context) => {
-      queryClient.setQueryData(todoKeys.lists(), context?.previousTodos);
+      queryClient.setQueryData(todoKeys.list, context?.previousTodos);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: todoKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.list });
     },
   });
 }
@@ -67,10 +67,10 @@ export function useUpdateTodoMutation() {
   return useMutation<Todo, Error, { id: number; input: UpdateTodoInput; }, MutationContext>({
     mutationFn: ({ id, input }) => updateTodo(id, input),
     onMutate: async ({ id, input }) => {
-      await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: todoKeys.list });
 
-      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.lists());
-      queryClient.setQueryData<Todo[]>(todoKeys.lists(), (current = []) =>
+      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.list);
+      queryClient.setQueryData<Todo[]>(todoKeys.list, (current = []) =>
         current.map((todo) =>
           todo.id === id ? { ...todo, ...input, updated_at: new Date().toISOString() } : todo,
         ),
@@ -79,13 +79,13 @@ export function useUpdateTodoMutation() {
       return { previousTodos };
     },
     onError: (_error, _variables, context) => {
-      queryClient.setQueryData(todoKeys.lists(), context?.previousTodos);
+      queryClient.setQueryData(todoKeys.list, context?.previousTodos);
     },
     onSuccess: (todo) => {
       queryClient.setQueryData(todoKeys.detail(todo.id), todo);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: todoKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.list });
     },
   });
 }
@@ -94,21 +94,21 @@ export function useDeleteTodoMutation() {
   return useMutation<void, Error, number, MutationContext>({
     mutationFn: deleteTodo,
     onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: todoKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: todoKeys.list });
 
-      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.lists());
-      queryClient.setQueryData<Todo[]>(todoKeys.lists(), (current = []) =>
+      const previousTodos = queryClient.getQueryData<Todo[]>(todoKeys.list);
+      queryClient.setQueryData<Todo[]>(todoKeys.list, (current = []) =>
         current.filter((todo) => todo.id !== id),
       );
 
       return { previousTodos };
     },
     onError: (_error, _id, context) => {
-      queryClient.setQueryData(todoKeys.lists(), context?.previousTodos);
+      queryClient.setQueryData(todoKeys.list, context?.previousTodos);
     },
     onSettled: (_data, _error, id) => {
       queryClient.removeQueries({ queryKey: todoKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: todoKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.list });
     },
   });
 }
