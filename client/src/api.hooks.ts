@@ -14,6 +14,9 @@ type MutationContext = {
   previousTodos?: Todo[];
 };
 
+// useQuery === GET
+// useMutation === PATCH, PUT, POST, DELETE
+
 export function useTodosQuery() {
   return useQuery({
     queryKey: todoKeys.list,
@@ -60,6 +63,7 @@ export function useCreateTodoMutation() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: todoKeys.list });
     },
+    onSuccess: () => { }
   });
 }
 

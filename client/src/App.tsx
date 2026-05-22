@@ -5,7 +5,6 @@ import { TodoForm } from './components/TodoForm';
 import { TodoItem } from './components/TodoItem';
 import { TodoStats } from './components/TodoStats';
 import { useIsMutating } from '@tanstack/react-query';
-// import { getTodos, type Todo } from './api';
 
 type Filter = 'all' | 'active' | 'completed';
 
@@ -13,7 +12,6 @@ const filters: Filter[] = ['all', 'active', 'completed'];
 
 function App() {
   const [filter, setFilter] = useState<Filter>('all');
-
   const { data, isLoading, isError, error, isSuccess } = useTodosQuery();
   const isCreating =
     useIsMutating({
@@ -46,7 +44,7 @@ function App() {
   //   };
 
   //   fetchFn();
-  // }, []);
+  // }, [id]);
 
   // console.log(fetchedData, loading, 'fetchedData');
 
